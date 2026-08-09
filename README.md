@@ -10,7 +10,7 @@ not five separate scripts, so each week plugs into the same menu.
 ```
 main.py                 entry point / menu
 db/redis_db.py          Week 1 (done)
-db/mongo_db.py           Week 2 (stub)
+db/mongo_db.py           Week 2 (done)
 db/cassandra_db.py       Week 3 (stub)
 db/neo4j_db.py           Week 4 (stub)
 db/sqlite_db.py          Week 5 (stub)
@@ -82,11 +82,35 @@ Commits get stored as Redis hashes. Three features:
 
 Full CRUD on commit records through the menu, plus an ingest step and a flush/reset option.
 
+## Week 2 (MongoDB) - what's implemented
+
+Commits, repos, languages, and licenses get ingested from the dataset. Three features:
+1. Longest and shortest repo names (aggregation with $strLenCP)
+2. Top repos by watch count
+3. Most common commit messages (aggregation, grouped and counted)
+
+Full CRUD on commit records through the menu, plus an ingest step and a flush/reset option.
+
+Install MongoDB locally if you don't have it:
+
+Mac:
+```
+brew tap mongodb/brew
+brew install mongodb-community
+brew services start mongodb-community
+```
+
+Linux/Windows: follow the official MongoDB install docs for your distro.
+
+App connects to localhost:27017 by default.
+
 ## Dependencies
 
 - Python 3.9+
 - redis (pip package, see requirements.txt)
+- pymongo (pip package, see requirements.txt)
 - a running Redis server
+- a running MongoDB server
 
 ## Workflow
 
@@ -97,6 +121,7 @@ Progress reports go in progress_reports/, one per week.
 ## Team
 
 - Haley Archer - Week 1 (Redis), Week 5 (SQLite)
-- TBD - Week 2 (MongoDB)
-- TBD - Week 3 (Cassandra)
-- TBD - Week 4 (Neo4j)
+- Signy Levitt - Week 2 (MongoDB)
+- Dale Livingston - Week 3 (Cassandra)
+- Emily Gillespie - Week 4 (Neo4j)
+
