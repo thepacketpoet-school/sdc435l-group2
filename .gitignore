@@ -1,0 +1,9 @@
+# Exclude data sets, will be moved locally
+data/
+
+# Operating System files
+.DS_Store
+
+# Python bytecode caching
+**/__pycache__/
+*.pyc
