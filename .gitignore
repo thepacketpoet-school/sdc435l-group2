@@ -1,0 +1,9 @@
+data/GitHubArchive-Dataset/
+
+# Operating System files
+.DS_Store
+data/.DS_Store
+
+# Python bytecode caching
+**/__pycache__/
+*.pyc
