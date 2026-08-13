@@ -104,13 +104,28 @@ Linux/Windows: follow the official MongoDB install docs for your distro.
 
 App connects to localhost:27017 by default.
 
+## Week 3 (Cassandra) - what's implemented
+Commits, repositories, and programming language data are ingested from the GitHub Archive dataset and stored in Cassandra. Three features:
+	1	Top repositories by watch count
+	2	Top programming languages by total bytes
+	3	Repositories with the highest number of commits
+  
+Full CRUD operations for commit records are available through the menu, including creating, reading, updating, and deleting. The Cassandra menu also includes an ingest step and a flush/reset option.
+Install the Cassandra Python driver:
+
+Mac:
+python3 -m pip install cassandra-driver
+The application connects to Cassandra on 127.0.0.1:9042 by default.
+
 ## Dependencies
 
 - Python 3.9+
 - redis (pip package, see requirements.txt)
 - pymongo (pip package, see requirements.txt)
+- cassandra-driver (pip package, see requirements.txt)
 - a running Redis server
 - a running MongoDB server
+- a running Cassandra server
 
 ## Workflow
 
