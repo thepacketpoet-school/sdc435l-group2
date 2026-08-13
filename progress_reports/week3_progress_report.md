@@ -28,6 +28,6 @@ The Cassandra portion also includes an option to list stored commit records and 
 ## Issues / Notes
 
 * Cassandra requires both the Cassandra server and the Python Cassandra driver to be installed before the application can connect to the database.
-* The GitHub Archive files must be placed in the project's `data/` folder before the ingestion feature can run. During testing, the application returned a FileNotFoundError when Commits.json was not available in the expected folder.
+* The GitHub Archive files must be placed in the project's data folder before the ingestion feature can run. During testing, the application returned a FileNotFoundError when Commits.json was not available in the expected folder.
 * Some of the GitHub Archive files are very large, so the application only loads a limited number of records instead of loading the entire dataset into memory.
 * Cassandra handles data differently from Redis and MongoDB, so tables and queries were set up around the data that the application needs to retrieve.
