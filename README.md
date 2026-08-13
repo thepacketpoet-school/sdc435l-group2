@@ -115,6 +115,7 @@ Install the Cassandra Python driver:
 
 Mac:
 python3 -m pip install cassandra-driver
+
 The application connects to Cassandra on 127.0.0.1:9042 by default.
 
 ## Dependencies
