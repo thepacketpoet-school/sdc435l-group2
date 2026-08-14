@@ -106,9 +106,9 @@ App connects to localhost:27017 by default.
 
 ## Week 3 (Cassandra) - what's implemented
 Commits, repositories, and programming language data are ingested from the GitHub Archive dataset and stored in Cassandra. Three features:
-	1.	Top repositories by watch count
-	2	Top programming languages by total bytes
-	3	Repositories with the highest number of commits
+1.	Top repositories by watch count
+2.	Top programming languages by total bytes
+3.	Repositories with the highest number of commits
   
 Full CRUD operations for commit records are available through the menu, including creating, reading, updating, and deleting. The Cassandra menu also includes an ingest step and a flush/reset option.
 Install the Cassandra Python driver:
