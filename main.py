@@ -6,6 +6,7 @@
 
 from db.redis_db import RedisManager
 from db.mongo_db import MongoManager
+from db.cassandra_db import CassandraManager
 
 
 def print_header(title):
@@ -198,6 +199,159 @@ def mongo_menu():
         else:
             print("Not a valid option, try again.")
             
+def cassandra_menu():
+    """Week 3: Cassandra Integration menu."""
+
+    try:
+        manager = CassandraManager()
+    except Exception as error:
+        print("\nCould not connect to Cassandra.")
+        print("Make sure Cassandra is running on localhost:9042.")
+        print(f"Error: {error}")
+        return
+
+    if not manager.ping():
+        print("\nCould not connect to Cassandra.")
+        return
+
+    while True:
+        print_header("Cassandra Menu (Week 3)")
+        print("1. Ingest sample data from GitHub Archive")
+        print("2. CRUD: Create a commit record")
+        print("3. CRUD: Read a commit record")
+        print("4. CRUD: Update a commit record")
+        print("5. CRUD: Delete a commit record")
+        print("6. CRUD: List stored commit keys")
+        print("7. Feature: Top repositories by watch count")
+        print("8. Feature: Top programming languages by bytes")
+        print("9. Feature: Commit count by repository")
+        print("10. Flush all Cassandra data (reset)")
+        print("0. Back to main menu")
+
+        choice = input("Select an option: ").strip()
+
+        if choice == "1":
+            print("\nIngesting GitHub Archive data...")
+            results = manager.ingest_all()
+            print(f"Ingested: {results}")
+
+        elif choice == "2":
+            sha = input("Commit SHA: ").strip()
+            repo_name = input("Repo name: ").strip()
+            author_name = input("Author name: ").strip()
+            author_email = input("Author email: ").strip()
+            message = input("Commit message: ").strip()
+
+            created = manager.create_commit(
+                sha,
+                repo_name,
+                author_name,
+                author_email,
+                message,
+            )
+
+            print(
+                "Created."
+                if created
+                else "A commit with that SHA already exists."
+            )
+
+        elif choice == "3":
+            sha = input("Commit SHA to read: ").strip()
+
+            record = manager.read_commit(sha)
+
+            print(
+                record
+                if record
+                else "No commit found with that SHA."
+            )
+
+        elif choice == "4":
+            sha = input("Commit SHA to update: ").strip()
+
+            field = input(
+                "Field to update "
+                "(repo_name/author_name/author_email/message): "
+            ).strip()
+
+            value = input("New value: ").strip()
+
+            updated = manager.update_commit(
+                sha,
+                field,
+                value,
+            )
+
+            print(
+                "Updated."
+                if updated
+                else "Commit or field was not found."
+            )
+
+        elif choice == "5":
+            sha = input("Commit SHA to delete: ").strip()
+
+            deleted = manager.delete_commit(sha)
+
+            print(
+                "Deleted."
+                if deleted
+                else "No commit found with that SHA."
+            )
+
+        elif choice == "6":
+            keys = manager.list_commit_keys()
+
+            print(f"\nShowing up to {len(keys)} commit keys:")
+
+            for key in keys:
+                print(f"  {key}")
+
+        elif choice == "7":
+            repos = manager.feature_top_repos()
+
+            print("\nTop repositories by watch count:")
+
+            for repo, watches in repos:
+                print(f"  {repo}: {watches:,} watchers")
+
+        elif choice == "8":
+            languages = manager.feature_top_languages()
+
+            print("\nTop programming languages by bytes:")
+
+            for language, total_bytes in languages:
+                print(
+                    f"  {language}: "
+                    f"{total_bytes:,} bytes"
+                )
+
+        elif choice == "9":
+            repos = manager.feature_commit_count_by_repo()
+
+            print("\nRepositories with the most commits:")
+
+            for repo, count in repos:
+                print(f"  {repo}: {count} commits")
+
+        elif choice == "10":
+            confirm = input(
+                "This will delete all Cassandra data for this app. "
+                "Type 'yes' to confirm: "
+            )
+
+            if confirm.strip().lower() == "yes":
+                manager.flush_all()
+                print("Cassandra data cleared.")
+
+        elif choice == "0":
+            manager.close()
+            break
+
+        else:
+            print("Not a valid option, try again.")
+
 def not_yet_available(week_name):
     print(f"\n{week_name} isn't implemented yet. Check back in a future week!")
 
@@ -219,7 +373,7 @@ def main_menu():
         elif choice == "2":
             mongo_menu()
         elif choice == "3":
-            not_yet_available("Cassandra")
+            cassandra_menu()
         elif choice == "4":
             not_yet_available("Neo4j")
         elif choice == "5":
