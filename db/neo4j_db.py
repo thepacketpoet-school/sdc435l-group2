@@ -9,11 +9,11 @@ import sys
 from neo4j import GraphDatabase as gDB
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from utils.data_loader import load_jsonl, dataset_path
 
-
 class Neo4jManager:
-    def __init__(self, uri="neo4j://localhost:7687", user="neo4j", password="sdc435_neo4j"):
+    def __init__(self, uri="neo4j://localhost:7687", user="neo4j", password="password1"):
         # Connect to Neo4j
         self.driver = gDB.driver(uri, auth=(user, password))
 
@@ -77,14 +77,29 @@ class Neo4jManager:
         count = 0
         with self.driver.session() as session:
             for record in load_jsonl(filepath, limit=limit):
-                query = """
-                    MERGE (r:Repo {name: $repo_name})
-                    MERGE (l:Language {name: $language})
-                    MERGE (r)-[:WRITTEN_IN]->(l)
-                    """
-                session.run(query,
-                    repo_name=record["repo_name"],
-                    language=record.get("language", "unknown"))
+                repo_name = record["repo_name"]
+                languages = record.get("language", [])
+
+                # language is a list of {name, bytes} objects, since a repo
+                # can be written in more than one language
+                if isinstance(languages, dict):
+                    languages = [languages]  # handle a stray single-object case defensively
+
+                for lang in languages:
+                    language_name = lang.get("name", "unknown")
+                    language_bytes = lang.get("bytes")
+
+                    query = """
+                        MERGE (r:Repo {name: $repo_name})
+                        MERGE (l:Language {name: $language})
+                        MERGE (r)-[rel:WRITTEN_IN]->(l)
+                        SET rel.bytes = $bytes
+                        """
+                    session.run(query,
+                        repo_name=repo_name,
+                        language=language_name,
+                        bytes=language_bytes)
+
                 count += 1
         return count
 
