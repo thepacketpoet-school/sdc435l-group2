@@ -7,7 +7,7 @@
 from db.redis_db import RedisManager
 from db.mongo_db import MongoManager
 from db.cassandra_db import CassandraManager
-
+from db.neo4j_db import Neo4jManager
 
 def print_header(title):
     print("\n" + "=" * 50)
@@ -352,6 +352,106 @@ def cassandra_menu():
         else:
             print("Not a valid option, try again.")
 
+
+def neo4j_menu():
+    #Week 4 Neo4j integration
+
+    manager = Neo4jManager()
+    if not manager:
+        print("\nCould not connect to Neo4j.")
+        print("Make sure Neo4j is running locally! (Default: localhost:7687)")
+        return
+    
+    print_header("Neo4j Menu (Week 4)")
+    print("1. Ingest sample data from GitHub Archive")
+    print("2. CRUD: Create a commit record")
+    print("3. CRUD: Read a commit record")
+    print("4. CRUD: Update a commit record")
+    print("5. CRUD: Delete a commit record")
+    print("6. Feature: List top 10 repos by distinct author count")
+    print("7. Feature: List repos with shared contributors")
+    print("8. Feature: List repos grouped by shared programming language")
+    print("9. Flush all Neo4j data (reset)")
+    print("0. Back to main menu")
+
+    choice = input("Select an option: ").strip()
+
+    if choice == "1":
+        print("Ingesting sample data from the archive...")
+        ingested = manager.ingest_all()
+        if ingested:
+            print("Done.")
+        else:
+            return
+        
+    elif choice == "2":
+        sha = input("Commit SHA: ").strip()
+        repo_name = input("Repo name: ").strip()
+        author_name = input("Author name: ").strip()
+        author_email = input("Author email: ").strip()
+        message = input("Commit message: ").strip()
+        created = manager.create_commit(sha, repo_name, author_name, author_email, message)
+        print("Created."
+            if created
+            else
+            "A commit with that SHA already exists.")
+              
+    elif choice == "3":
+        sha = input("Commit SHA to read: ").strip()
+        record = manager.read_commit(sha)
+        print(record
+            if record
+            else "No commit found with that SHA.")
+            
+    elif choice == "4":
+        sha = input("Commit SHA to update: ").strip()
+        value = input("New value (message): ").strip()
+        field = "message"
+        updated = manager.update_commit(sha, field, value)
+        print("Updated."
+            if updated
+            else "Commit or field was not found.")
+
+    elif choice == "5":
+        sha = input("Commit SHA to delete: ").strip()
+        deleted = manager.delete_commit(sha)
+        print("Deleted."
+            if deleted
+            else "No commit found with that SHA.")
+
+    elif choice == "6":
+        top_repos = manager.top_repos_by_author_count()
+        print("\nTop repos by distinct author count: ")
+        for repo in top_repos:
+            print(repo)
+
+    elif choice == "7":
+        shared_repos = manager.repos_with_shared_contributors()
+        print("\nRepos with shared contributors: ")
+        for repo in shared_repos:
+            print(repo)
+
+    elif choice == "8":
+        language = input("\nGroup by which language? : ").strip()
+        repos_by_lang = manager.repos_by_language(language)
+        print(f"\nRepos grouped by shared programming language '{language}': ")
+        for repo in repos_by_lang:
+            print(repo)
+
+    elif choice == "9":
+        confirm = input("Are you sure you want to delete all Neo4j data? (Y/N): ")
+        if confirm.strip().upper() == "Y":
+            manager.flush_all()
+            print("Neo4j data deleted.")
+
+    elif choice == "0":
+        manager.close()
+
+    else:
+        print("Invlaid option. Try again.")
+        
+
+
 def not_yet_available(week_name):
     print(f"\n{week_name} isn't implemented yet. Check back in a future week!")
 
@@ -375,7 +475,7 @@ def main_menu():
         elif choice == "3":
             cassandra_menu()
         elif choice == "4":
-            not_yet_available("Neo4j")
+            neo4j_menu()
         elif choice == "5":
             not_yet_available("SQLite")
         elif choice == "0":
