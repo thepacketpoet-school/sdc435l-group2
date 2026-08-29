@@ -8,6 +8,7 @@ from db.redis_db import RedisManager
 from db.mongo_db import MongoManager
 from db.cassandra_db import CassandraManager
 from db.neo4j_db import Neo4jManager
+from db.sqlite_db import SQLiteManager
 
 def print_header(title):
     print("\n" + "=" * 50)
@@ -352,7 +353,6 @@ def cassandra_menu():
         else:
             print("Not a valid option, try again.")
 
-
 def neo4j_menu():
     #Week 4 Neo4j integration
 
@@ -450,10 +450,87 @@ def neo4j_menu():
     else:
         print("Invlaid option. Try again.")
         
+def sqlite_menu():
+    """Week 5: SQLite integration menu."""
+    manager = SQLiteManager()
 
+    while True:
+        print("\n" + "=" * 50)
+        print("SQLite Menu (Week 5)")
+        print("=" * 50)
+        print("1. Ingest sample data from GitHub Archive")
+        print("2. CRUD: Create a commit record")
+        print("3. CRUD: Read a commit record")
+        print("4. CRUD: Update a commit record")
+        print("5. CRUD: Delete a commit record")
+        print("6. Feature: Top repos by watch count (with license)")
+        print("7. Feature: Repos with the most unique languages")
+        print("8. Feature: Average committers per repo")
+        print("9. Flush all SQLite data (reset)")
+        print("0. Back to main menu")
 
-def not_yet_available(week_name):
-    print(f"\n{week_name} isn't implemented yet. Check back in a future week!")
+        choice = input("Select an option: ").strip()
+
+        if choice == "1":
+            print("Ingesting sample data from the archive...")
+            ingested = manager.ingest_all()
+            print(f"Ingested: {ingested}")
+
+        elif choice == "2":
+            sha = input("Commit SHA: ").strip()
+            repo_name = input("Repo name: ").strip()
+            author_name = input("Author name: ").strip()
+            author_email = input("Author email: ").strip()
+            message = input("Commit message: ").strip()
+            created = manager.create_commit(sha, repo_name, author_name, author_email, message)
+            print("Commit created." if created else "A commit with that SHA already exists.")
+
+        elif choice == "3":
+            sha = input("Commit SHA to look up: ").strip()
+            result = manager.read_commit(sha)
+            print(result if result else "No commit found with that SHA.")
+
+        elif choice == "4":
+            sha = input("Commit SHA to update: ").strip()
+            print("Editable fields: message, author_name, author_email")
+            field = input("Field to update: ").strip()
+            value = input("New value: ").strip()
+            updated = manager.update_commit(sha, field, value)
+            print("Commit updated." if updated else "Update failed, check the SHA and field name.")
+
+        elif choice == "5":
+            sha = input("Commit SHA to delete: ").strip()
+            deleted = manager.delete_commit(sha)
+            print("Commit deleted." if deleted else "No commit found with that SHA.")
+
+        elif choice == "6":
+            print("\nTop repos by watch count:")
+            for repo_name, watch_count, license_name in manager.top_repos_with_license():
+                print(f"  {repo_name} - {watch_count} watches - license: {license_name}")
+
+        elif choice == "7":
+            print("\nRepos with the most unique languages:")
+            for repo_name, language_count in manager.repos_by_unique_language_count():
+                print(f"  {repo_name} - {language_count} unique language(s)")
+
+        elif choice == "8":
+            avg = manager.average_committers_per_repo()
+            print(f"\nAverage distinct committers per repo: {avg:.2f}" if avg else "No commit data ingested yet.")
+
+        elif choice == "9":
+            confirm = input("This will delete all SQLite data for this app. Type 'yes' to confirm: ")
+            if confirm.strip().lower() == "yes":
+                manager.flush_all()
+                print("SQLite data cleared.")
+            else:
+                print("Cancelled.")
+
+        elif choice == "0":
+            manager.close()
+            break
+
+        else:
+            print("Invalid option.")
 
 
 def main_menu():
@@ -477,7 +554,7 @@ def main_menu():
         elif choice == "4":
             neo4j_menu()
         elif choice == "5":
-            not_yet_available("SQLite")
+            sqlite_menu()
         elif choice == "0":
             print("Goodbye!")
             break

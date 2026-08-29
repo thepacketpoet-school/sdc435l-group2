@@ -118,6 +118,17 @@ python3 -m pip install cassandra-driver
 
 The application connects to Cassandra on 127.0.0.1:9042 by default.
 
+## Week 5 (SQLite) - what's implemented
+
+Repos, commits, languages, and licenses get ingested into a local SQLite database file (github_archive.db, created automatically on first run, gitignored). Unlike the other four weeks, this one is relational, so the tables use real foreign keys back to repos, and the three features below run as SQL JOINs and aggregates instead of NoSQL-specific query patterns. Three features:
+1. Top repos by watch count, joined with their license
+2. Repos with the highest count of unique languages used
+3. Average number of distinct committers per repo, across all ingested repos
+
+Full CRUD on commit records through the menu, plus an ingest step and a flush/reset option.
+
+No external database server needed, sqlite3 is part of the Python standard library. Just make sure you're on Python 3.9+.
+
 ## Week 4 (Neo4j) - what's implemented
 
 Commits, repos, languages, and licenses get ingested from the dataset and modeled as a connected graph rather than flat records. Nodes: Commit, Author, Repo, Language, License. Relationships: (Author)-[:AUTHORED]->(Commit)-[:IN_REPO]->(Repo), (Repo)-[:WRITTEN_IN]->(Language), (Repo)-[:LICENSED_UNDER]->(License). Repo/Author/Language/License nodes use MERGE so the same repo, author, language, or license doesn't end up duplicated across records; Commit nodes use CREATE since each commit sha is already unique.
@@ -147,6 +158,7 @@ Note that ingestion here is slower than the other weeks since each record does a
 - pymongo (pip package, see requirements.txt)
 - cassandra-driver (pip package, see requirements.txt)
 - neo4j (pip package, see requirements.txt)
+- sqlite3 (Python standard library, no install needed)
 - a running Redis server
 - a running MongoDB server
 - a running Cassandra server
